@@ -1,6 +1,6 @@
 DB_CFG = {
     "host" : "localhost",
     "user" : "root",
-    "password" : "Revan107",
-    "database" : "ApiDB"
+    "password" : "Chuchis130",
+    "database" : "PDA"
 }
