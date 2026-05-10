@@ -1,6 +1,7 @@
 from dataclasses import dataclass, asdict
 from decimal import Decimal
 from typing import Optional
+import base64
 
 @dataclass
 class Producto:
@@ -13,17 +14,19 @@ class Producto:
     existencias: int
     unidad_fk: int
     estatus: int = 1
-    imagen_producto_ruta: Optional[str] = None
+    imagen_producto_ruta: bytes = None
 
     def to_dict(self):
-        """
-        Convierte el objeto en un diccionario. 
-        Útil para responder con JSON en Flask.
-        """
+       
         data = asdict(self)
-        # Convertimos Decimal a float para que sea serializable a JSON
+        
         data['precio'] = float(self.precio)
-        return data
+        
+        if self.imagen_producto_ruta:
+            data['imagen_producto_ruta'] = base64.b64encode(self.imagen_producto_ruta).decode('utf-8')
+        else: 
+                data['imagen_producto_ruta'] = None
+        return data     
 
     @staticmethod
     def from_dict(data):

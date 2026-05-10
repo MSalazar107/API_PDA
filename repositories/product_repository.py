@@ -4,10 +4,9 @@ class ProductRepository:
     def __init__(self, db):
         self.db = db
 
-    # --- OPERACIONES DE PRODUCTOS ---
+   
 
     def create(self, p):
-        """Inserta un nuevo producto en la tabla PRODUCTO"""
         try:
             conn = self.db.connect()
             cur = conn.cursor()
@@ -15,8 +14,9 @@ class ProductRepository:
                 INSERT INTO PRODUCTO (codigo, descripcion, precio, existencias, estatus, unidad_fk, imagen_producto_ruta)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            # El estatus se manda como 1 (activo) por defecto
+            #
             params = (p['codigo'], p['descripcion'], p['precio'], p['existencias'], 1, p['unidad_fk'], p['imagen_producto_ruta'])
+            print("VALORES QUE LLEGAN AL REPO:", params)
             cur.execute(query, params)
             conn.commit()
             return True
@@ -32,7 +32,7 @@ class ProductRepository:
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
-            # Usamos un JOIN para traer la descripción de la unidad de una vez
+         
             query = """
                 SELECT p.*, u.descripcionUnidad 
                 FROM PRODUCTO p
@@ -45,7 +45,7 @@ class ProductRepository:
             cur.close()
             conn.close()
 
-    def get_by_codigo(self, codigo):
+    def get_by_id(self, codigo):
         """Busca un producto específico por su llave primaria"""
         try:
             conn = self.db.connect()
@@ -83,7 +83,7 @@ class ProductRepository:
             cur.close()
             conn.close()
 
-    # --- OPERACIONES DE CATÁLOGO (UNIDADES) ---
+
 
     def get_units(self):
         """Lista las unidades disponibles para llenar selects en el frontend"""

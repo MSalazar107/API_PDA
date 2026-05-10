@@ -59,3 +59,15 @@ class UserService:
         self.repo.add(usuario)
         
         return usuario
+    
+    def actualizar_foto_perfil(self, email: str, foto_file):
+        if not foto_file:
+            raise ValueError("No se proporcionó una foto válida.")
+        
+        foto_blob = foto_file.read()
+        
+        exito = self.repo.update_foto(email, foto_blob)
+        if not exito:
+            raise Exception("Error al actualizar la foto de perfil.")
+        
+        return True

@@ -9,7 +9,7 @@ class Usuario:
     contrasena:str
     fecha_nac:str
 
-    #campos opcionales
+   
     
     alias: Optional[str] = None
     telefono: Optional [str] = None 

@@ -1,0 +1,1 @@
+producto_bd = self.product_repo.get_by_id(codigo)

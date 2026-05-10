@@ -44,3 +44,18 @@ class UserRepository:
         conn.close()
         
         return resultado is not None
+    def update_foto (self, email: str, foto_blob):
+        
+        try:
+            conn = self.db.connect()
+            cur = conn.cursor()
+            query = "UPDATE USUARIO SET imagen_ruta = %s WHERE email = %s"
+            cur.execute(query, (foto_blob, email))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error al actualizar la foto: {e}")
+            return False
+        finally:
+            cur.close()
+            conn.close()
