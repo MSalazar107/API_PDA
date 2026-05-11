@@ -1,23 +1,14 @@
-from decimal import Decimal
 from mysql.connector import Error
 import datetime
 
 class SaleRepository:
-    def __init__(self, db):
+    def _init_(self, db):
         self.db = db
     
     def registrar_transaccion(self, venta):
-        conn = self.db.connect()
+        conn = self.db.get_connection()
         conn.autocommit = False
         cur = conn.cursor()
-
-        def f(val):
-            if isinstance(val, (tuple, list)):
-                val = val[0]
-            try:
-                return float(val) if val is not None else 0.0
-            except:
-                return 0.0
 
         try:
             ahora = datetime.datetime.now()
@@ -32,7 +23,7 @@ class SaleRepository:
                 folio_id, 
                 venta.fecha, 
                 venta.numero_caja, 
-                f(venta.total)
+                float(venta.total)
             ))
             
             query_detalle = """
@@ -42,15 +33,12 @@ class SaleRepository:
             query_stock = "UPDATE PRODUCTO SET existencias = existencias - %s WHERE codigo = %s"
             
             for detalle in venta.detalles:
-                p_u = f(detalle.precio_unitario)
-                subtotal = f(detalle.importe)
-                
                 cur.execute(query_detalle, (
                     folio_id, 
                     detalle.codigo_producto, 
                     detalle.cantidad, 
-                    p_u, 
-                    subtotal
+                    float(detalle.precio_unitario), 
+                    float(detalle.importe)
                 ))
                 
                 cur.execute(query_stock, (detalle.cantidad, detalle.codigo_producto))
@@ -60,11 +48,15 @@ class SaleRepository:
             return True
 
         except Error as e:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             raise Exception(f"Error de base de datos: {str(e)}")
         except Exception as e:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             raise e
         finally:
-            cur.close()
-            conn.close()
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
