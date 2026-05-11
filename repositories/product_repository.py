@@ -1,5 +1,6 @@
 from mysql.connector import Error
 
+
 class ProductRepository:
     def __init__(self, db):
         self.db = db
@@ -28,7 +29,7 @@ class ProductRepository:
             conn.close()
 
     def get_all(self):
-        """Obtiene todos los productos con el nombre de su unidad"""
+        #Obtiene todos los productos con el nombre de su unidad
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
@@ -46,7 +47,7 @@ class ProductRepository:
             conn.close()
 
     def get_by_id(self, codigo):
-        """Busca un producto específico por su llave primaria"""
+        #Busca un producto específico por su llave primaria
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
@@ -79,6 +80,29 @@ class ProductRepository:
             cur.execute(query, (codigo,))
             conn.commit()
             return True
+        finally:
+            cur.close()
+            conn.close()
+    
+    
+    def update(self, codigo, p):
+        
+        try:
+            conn = self.db.connect()
+            cur = conn.cursor()
+            query = """
+                UPDATE PRODUCTO 
+                SET descripcion = %s, precio = %s, existencias = %s, 
+                    unidad_fk = %s, imagen_producto_ruta = %s
+                WHERE codigo = %s
+            """
+            params = (p['descripcion'], p['precio'], p['existencias'], p['unidad_fk'], p['imagen_producto_ruta'], codigo)
+            cur.execute(query, params)
+            conn.commit()
+            return cur.rowcount > 0 
+        except Error as e:
+            print(f"Error al actualizar producto: {e}")
+            return False
         finally:
             cur.close()
             conn.close()
