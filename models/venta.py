@@ -11,6 +11,7 @@ def clean_num(value):
 class DetalleVenta:
     
     codigo_producto: str
+    nombre_producto: str
     cantidad: int
     precio_unitario: Decimal = Decimal('0.00')
     importe: Decimal = Decimal('0.00')
@@ -18,6 +19,7 @@ class DetalleVenta:
     def to_dict(self):
         return {
             "codigo_producto": self.codigo_producto,
+            "nombre_producto": self.nombre_producto,    
             "cantidad": self.cantidad,
             "precio_unitario": float(self.precio_unitario),
             "importe": float(self.importe)

@@ -2,7 +2,7 @@ from models.venta import Venta, DetalleVenta
 from decimal import Decimal
 
 class SaleService:
-    def _init_(self, sale_repository, product_repository):
+    def __init__(self, sale_repository, product_repository):
         self.sale_repository = sale_repository
         self.product_repo = product_repository
         
@@ -39,7 +39,8 @@ class SaleService:
             importe = precio * Decimal(str(cantidad))
         
             detalle = DetalleVenta(
-                codigo_producto=codigo, 
+                codigo_producto=codigo,
+                nombre_producto=producto_bd["descripcion"], 
                 cantidad=cantidad, 
                 precio_unitario=precio, 
                 importe=importe

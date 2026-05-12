@@ -5,7 +5,7 @@ from repositories.sale_repository import SaleRepository
 from repositories.product_repository import ProductRepository
 from services.sale_service import SaleService
 
-venta_bp = Blueprint('venta', _name_)
+venta_bp = Blueprint('venta', __name__)
 
 db = Database()
 sale_repo = SaleRepository(db)

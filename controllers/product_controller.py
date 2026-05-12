@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file 
+import io
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from db import Database
 from repositories.product_repository import ProductRepository
@@ -69,7 +70,7 @@ def actualizar (codigo):
             return jsonify({"error": "Producto no encontrado"}), 404
         
         foto =request.files.get('foto')
-        blob_imagen = foto.read if foto else producto_existente['imagen_producto_ruta']
+        blob_imagen = foto.read() if foto else producto_existente['imagen_producto_ruta']
         
         data = {"descripcion": request.form.get('descripcion', producto_existente['descripcion']),
                 "precio": float(request.form.get('precio', producto_existente['precio'])),
@@ -89,3 +90,14 @@ def eliminar(codigo):
     if product_repo.delete_logic(codigo):
         return jsonify({"mensaje": "Producto eliminado con éxito"}), 200
     return jsonify({"error": "No se pudo eliminar el producto"}), 400
+
+@product_bp.route('/<codigo>/foto', methods=['GET'])
+def ver_foto_productoO(codigo):
+    try:
+        producto = product_repo.get_by_id(codigo)
+        if not producto or not producto['imagen_producto_ruta']:
+            return jsonify({"error": "Producto o imagen no encontrada"}), 404
+        foto_bytes = producto['imagen_producto_ruta']
+        return send_file(io.BytesIO(foto_bytes), mimetype='image/jpeg', as_attachment=False, download_name=f"{codigo}_foto.jpg")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  

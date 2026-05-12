@@ -1,5 +1,5 @@
 from mysql.connector import Error
-
+from models.product import Producto
 
 class ProductRepository:
     def __init__(self, db):
@@ -29,16 +29,13 @@ class ProductRepository:
             conn.close()
 
     def get_all(self):
-        #Obtiene todos los productos con el nombre de su unidad
+        
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
          
             query = """
-                SELECT p.*, u.descripcionUnidad 
-                FROM PRODUCTO p
-                JOIN CATLG_UNITS u ON p.unidad_fk = u.ID_unidad
-                WHERE p.estatus = 1
+                SELECT * FROM Vista_Productos_Activos
             """
             cur.execute(query)
             return cur.fetchall()
@@ -47,7 +44,7 @@ class ProductRepository:
             conn.close()
 
     def get_by_id(self, codigo):
-        #Busca un producto específico por su llave primaria
+        
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
@@ -59,7 +56,7 @@ class ProductRepository:
             conn.close()
 
     def update_stock(self, codigo, nueva_existencia):
-        """Actualiza solo las existencias (útil para el módulo de ventas)"""
+        
         try:
             conn = self.db.connect()
             cur = conn.cursor()
@@ -72,7 +69,7 @@ class ProductRepository:
             conn.close()
 
     def delete_logic(self, codigo):
-        """Borrado lógico: cambia estatus a 0 para no perder historial de ventas"""
+        
         try:
             conn = self.db.connect()
             cur = conn.cursor()
@@ -110,12 +107,27 @@ class ProductRepository:
 
 
     def get_units(self):
-        """Lista las unidades disponibles para llenar selects en el frontend"""
+    
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
             cur.execute("SELECT * FROM CATLG_UNITS")
             return cur.fetchall()
+        finally:
+            cur.close()
+            conn.close()
+            
+    def consultar_stock_bd(self, codigo):
+        """Llama a la función de MySQL para ver cuánto stock real queda"""
+        try:
+            conn = self.db.connect()
+            cur = conn.cursor(dictionary=True)
+            
+            
+            cur.execute("SELECT ObtenerStockDisponible(%s) AS stock_actual", (codigo,))
+            resultado = cur.fetchone()
+            
+            return resultado['stock_actual'] if resultado else 0
         finally:
             cur.close()
             conn.close()

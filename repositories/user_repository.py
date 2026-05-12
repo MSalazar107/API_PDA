@@ -59,3 +59,13 @@ class UserRepository:
         finally:
             cur.close()
             conn.close()
+    
+    def get_by_email(self, email):
+        try:
+            conn = self.db.connect()
+            cur = conn.cursor(dictionary=True)
+            cur.execute("SELECT * FROM USUARIO WHERE email = %s", (email,))
+            return cur.fetchone()
+        finally:
+            cur.close()
+            conn.close()

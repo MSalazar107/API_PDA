@@ -1,4 +1,5 @@
-import re 
+import re
+
 from datetime import datetime 
 from werkzeug.security import generate_password_hash
 from models.usuario import Usuario
@@ -30,7 +31,7 @@ class UserService:
         except ValueError:
             raise ValueError("Formato de fecha invalido. Usa YYYY-MM-DD")
         
-    def create_Usuario(self, data: dict) -> Usuario:
+    def create_Usuario(self, data: dict, foto_file=None) -> Usuario:
         
         if self.repo.email_existe(data["email"]):
             raise ValueError("El corrreo ya esta registrado.")
@@ -41,7 +42,12 @@ class UserService:
         if not self._es_mayor_de_edad(data["fecha_nac"]):
             raise ValueError("Debes ser mayor de edad para registrarte")
         
+        foto_blob = None
+        if foto_file:
+            foto_blob = foto_file.read()
+        
         hashed_password  = generate_password_hash(data["contrasena"])
+        
         
         usuario = Usuario(
             email = data["email"],
@@ -53,7 +59,7 @@ class UserService:
             alias = data.get("alias"),
             telefono = data.get("telefono"),
             direccion = data.get("direccion"),
-            imagen_ruta = data.get("imagen_ruta")  
+            imagen_ruta = foto_blob 
         )
         
         self.repo.add(usuario)

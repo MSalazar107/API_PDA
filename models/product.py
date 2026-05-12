@@ -5,16 +5,14 @@ import base64
 
 @dataclass
 class Producto:
-    """
-    Representa la estructura de un producto según la tabla PRODUCTO de la base de datos.
-    """
+    
     codigo: str
     descripcion: str
     precio: Decimal
     existencias: int
     unidad_fk: int
     estatus: int = 1
-    imagen_producto_ruta: bytes = None
+    imagen_producto_ruta:Optional [bytes] = None
 
     def to_dict(self):
        
@@ -30,9 +28,14 @@ class Producto:
 
     @staticmethod
     def from_dict(data):
-        """
-        Crea una instancia de Producto a partir de un diccionario (como el de Postman).
-        """
+        imagen = data.get('imagen_producto_ruta')
+        
+        if isinstance(imagen, str) and imagen:
+            try:
+                imagen = base64.b64decode(imagen)
+            except Exception:
+                pass
+        
         return Producto(
             codigo=data.get('codigo'),
             descripcion=data.get('descripcion'),
@@ -40,5 +43,5 @@ class Producto:
             existencias=data.get('existencias', 0),
             unidad_fk=data.get('unidad_fk'),
             estatus=data.get('estatus', 1),
-            imagen_producto_ruta=data.get('imagen_producto_ruta')
+            imagen_producto_ruta= imagen
         )

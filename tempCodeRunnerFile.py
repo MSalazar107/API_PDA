@@ -31,7 +31,7 @@ def cerrar_sesiones():
         if 'conn' in locals(): conn.close()
         
 atexit.register(cerrar_sesiones)
-app.register_blueprint(user_bp, url_prefix='/api/user')
+app.register_blueprint(user_bp, url_prefix='/api/users')
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(venta_bp, url_prefix='/api/ventas')
 app.register_blueprint(product_bp, url_prefix='/api/productos')

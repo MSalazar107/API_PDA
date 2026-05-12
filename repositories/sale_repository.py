@@ -2,11 +2,11 @@ from mysql.connector import Error
 import datetime
 
 class SaleRepository:
-    def _init_(self, db):
+    def __init__(self, db):
         self.db = db
     
     def registrar_transaccion(self, venta):
-        conn = self.db.get_connection()
+        conn = self.db.connect()
         conn.autocommit = False
         cur = conn.cursor()
 
