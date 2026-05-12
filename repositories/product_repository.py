@@ -11,23 +11,31 @@ class ProductRepository:
         try:
             conn = self.db.connect()
             cur = conn.cursor()
-            query = """
-                INSERT INTO PRODUCTO (codigo, descripcion, precio, existencias, estatus, unidad_fk, imagen_producto_ruta)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """
-            #
-            params = (p['codigo'], p['descripcion'], p['precio'], p['existencias'], 1, p['unidad_fk'], p['imagen_producto_ruta'])
-            print("VALORES QUE LLEGAN AL REPO:", params)
-            cur.execute(query, params)
+            
+            
+            params = (
+                p['codigo'], 
+                p['descripcion'], 
+                p['precio'], 
+                p['existencias'], 
+                p['unidad_fk'], 
+                p['imagen_producto_ruta']
+            )
+            
+            print("Llamando al Procedure InsertarProducto con:", p['codigo'])
+            
+            
+            cur.callproc('InsertarProducto', params)
             conn.commit()
             return True
+            
         except Error as e:
             print(f"Error al crear producto: {e}")
             return False
         finally:
             cur.close()
             conn.close()
-
+            
     def get_all(self):
         
         try:
@@ -56,14 +64,18 @@ class ProductRepository:
             conn.close()
 
     def update_stock(self, codigo, nueva_existencia):
-        
         try:
             conn = self.db.connect()
             cur = conn.cursor()
-            query = "UPDATE PRODUCTO SET existencias = %s WHERE codigo = %s"
-            cur.execute(query, (nueva_existencia, codigo))
+            
+
+            cur.callproc('ActualizarExistencia', (codigo, nueva_existencia))
             conn.commit()
+            
             return True
+        except Error as e:
+            print(f"Error: {e}")
+            return False
         finally:
             cur.close()
             conn.close()
@@ -73,8 +85,8 @@ class ProductRepository:
         try:
             conn = self.db.connect()
             cur = conn.cursor()
-            query = "UPDATE PRODUCTO SET estatus = 0 WHERE codigo = %s"
-            cur.execute(query, (codigo,))
+            
+            cur.callproc('DarDeBajaProducto', (codigo,))
             conn.commit()
             return True
         finally:
@@ -83,20 +95,25 @@ class ProductRepository:
     
     
     def update(self, codigo, p):
-        
         try:
             conn = self.db.connect()
             cur = conn.cursor()
-            query = """
-                UPDATE PRODUCTO 
-                SET descripcion = %s, precio = %s, existencias = %s, 
-                    unidad_fk = %s, imagen_producto_ruta = %s
-                WHERE codigo = %s
-            """
-            params = (p['descripcion'], p['precio'], p['existencias'], p['unidad_fk'], p['imagen_producto_ruta'], codigo)
-            cur.execute(query, params)
+            
+           
+            params = (
+                codigo, 
+                p['descripcion'], 
+                p['precio'], 
+                p['existencias'], 
+                p['unidad_fk'], 
+                p['imagen_producto_ruta']
+            )
+            
+            # Llamamos al procedimiento almacenado
+            cur.callproc('EditarProducto', params)
             conn.commit()
-            return cur.rowcount > 0 
+            
+            return True 
         except Error as e:
             print(f"Error al actualizar producto: {e}")
             return False
@@ -118,7 +135,7 @@ class ProductRepository:
             conn.close()
             
     def consultar_stock_bd(self, codigo):
-        """Llama a la función de MySQL para ver cuánto stock real queda"""
+       
         try:
             conn = self.db.connect()
             cur = conn.cursor(dictionary=True)
@@ -128,6 +145,24 @@ class ProductRepository:
             resultado = cur.fetchone()
             
             return resultado['stock_actual'] if resultado else 0
+        finally:
+            cur.close()
+            conn.close()
+            
+    def agregar_inventario(self, codigo, cantidad_nueva):
+        
+        try:
+            conn = self.db.connect()
+            cur = conn.cursor()
+            
+            # Llamamos al procedimiento y le pasamos los 2 parámetros
+            cur.callproc('AgregarStock', (codigo, cantidad_nueva))
+            conn.commit()
+            
+            return True
+        except Error as e:
+            print(f"Error al agregar stock: {e}")
+            return False
         finally:
             cur.close()
             conn.close()

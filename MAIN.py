@@ -7,6 +7,8 @@ from controllers.product_controller import product_bp
 from controllers.reportes_controller import report_bp
 from db import Database
 import atexit 
+from flasgger import Swagger 
+
 
 
 
@@ -14,6 +16,17 @@ app = Flask (__name__)
 
 app.config["JWT_SECRET_KEY"] = "jwt-secret-key"
 jwt = JWTManager(app)
+
+template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "API Punto de Venta",
+        "description": "Documentación interactiva de la API",
+        "version": "1.0.0"
+    }
+}
+swagger = Swagger(app, template=template)
+
 def cerrar_sesiones():
     print("Cerrando sesiones en caja")
     db = Database()

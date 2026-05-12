@@ -15,6 +15,65 @@ sale_service = SaleService(sale_repo, product_repo)
 @venta_bp.route('/nueva', methods=['POST'])
 @jwt_required()
 def registrar_venta():
+    """
+    Registra una nueva venta procesando la lista de productos.
+    ---
+    tags:
+      - Ventas
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - productos
+          properties:
+            productos:
+              type: array
+              description: Lista de artículos a vender.
+              items:
+                type: object
+                properties:
+                  codigo:
+                    type: string
+                    example: "5001"
+                  cantidad:
+                    type: integer
+                    example: 3
+    responses:
+      201:
+        description: Venta completada. Devuelve el ticket detallado.
+        schema:
+          properties:
+            mensaje:
+              type: string
+              example: "Venta registrada exitosamente"
+            ticket:
+              type: object
+              properties:
+                detalles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      cantidad:
+                        type: integer
+                      codigo_producto:
+                        type: string
+                      importe:
+                        type: number
+                      nombre_producto:
+                        type: string
+                      precio_unitario:
+                        type: number
+      400:
+        description: Error en el formato del JSON o falta el número de caja.
+      500:
+        description: Error interno al procesar la transacción.
+    """
     claims = get_jwt()
     numero_caja = claims.get('num_caja')
     data = request.get_json()
